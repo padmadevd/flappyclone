@@ -1,0 +1,2 @@
+g++ -o flappybird main.cpp raylibX.cpp -I/home/dev/programming/cpp/include -L/home/dev/programming/cpp/lib -lraylibrel -lX11 -lGL
+
