@@ -4,8 +4,8 @@
 #include <raylib/raylib.h>
 #include <raylib/raymath.h>
 #include <sys/types.h>
+#include "GLFW/glfw3.h"
 #include "raylibX.hpp"
-
 
 // -------------------- STRUCT AND MACROS ----------------------------------
 
@@ -208,15 +208,22 @@ int main(){
 
 	initGame();
 
+	double FPS = 120;
+	double SPF = 1/FPS;
+
 	double lastTime = GetTime();
+	double delta = 0;
 	while (!WindowShouldClose()) {
 
-		double delta = GetTime() - lastTime;
-		lastTime = GetTime();
+		PollInputEvents();
+        processFrame(delta);
+        drawFrame();
+		SwapScreenBuffer();
 
-		processFrame(delta);
-		drawFrame();
-		
+		delta = GetTime() - lastTime;
+		lastTime = GetTime();
+		if(SPF - delta > 0)
+			WaitTime(SPF - delta);
 	}
 }
 
@@ -226,8 +233,9 @@ void initGame(){
 	screenHeight = tc[sky_day].height*2;
 
 	InitWindow(screenWidth, screenHeight, "flappybird");
-	SetTargetFPS(60);
 	InitAudioDevice();
+
+	// SetWindowState(FLAG_WINDOW_RESIZABLE);
 
 	// LOADING RESOURCE
 	txr_flappy = LoadTexture("assets/flappy.png");
@@ -398,6 +406,7 @@ void processFrame(double delta){
 			birdBox.rotation = -50;
 
 		if(IsKeyPressed(KEY_J) && birdBox.rec.y > 0){
+			
 			StopSound(s_birdWing);
 			PlaySound(s_birdWing);
 
@@ -484,6 +493,21 @@ void processFrame(double delta){
 		if(IsKeyPressed(KEY_SPACE)){
 			StopSound(s_level);
 			PlaySound(s_level);
+			gameState = STATE_RUN;
+		}
+
+		if(IsKeyPressed(KEY_J) && birdBox.rec.y > 0){
+
+			StopSound(s_birdWing);
+			PlaySound(s_birdWing);
+
+			lastKeyTime = GetTime();
+			keyCount = 1;
+			jumpVelocity = -400;
+
+			velocity.y = jumpVelocity;
+			rotVelocity = jumpRVelocity;
+
 			gameState = STATE_RUN;
 		}
 	}
